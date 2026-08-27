@@ -1,0 +1,36 @@
+services:
+  app:
+    image: php:8.3-fpm
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - iod_internal
+
+  db:
+    image: mariadb:11.4
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: ${DB_DATABASE:-iod_manager}
+      MARIADB_USER: ${DB_USERNAME:-iod_manager}
+      MARIADB_PASSWORD: ${DB_PASSWORD:-change-me}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-change-root-me}
+    volumes:
+      - iod_db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - iod_internal
+
+networks:
+  iod_internal:
+    driver: bridge
+
+volumes:
+  iod_db:
