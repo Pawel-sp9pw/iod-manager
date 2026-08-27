@@ -12,13 +12,9 @@ return [
     'prefix' => '',
     'domain' => null,
     'middleware' => ['web'],
-    'limiters' => [
-        'login' => 'login',
-        'two-factor' => 'two-factor',
-    ],
+    'limiters' => ['login' => 'login', 'two-factor' => 'two-factor'],
     'views' => true,
     'features' => [
-        Features::resetPasswords(),
         Features::twoFactorAuthentication([
             'confirm' => true,
             'confirmPassword' => false,
