@@ -168,6 +168,42 @@ php artisan queue:work --sleep=3 --tries=3 --timeout=90
 
 W aaPanel najlepiej uruchomić worker przez Supervisor/Process Manager z automatycznym restartem.
 
+## Reset nieudanej instalacji i czysta reinstalacja
+
+Jeżeli pierwsza instalacja przerwała się, np. przez `504 Gateway Timeout`, użyj osobnego skryptu CLI:
+
+```bash
+php scripts/reset-installation.php
+```
+
+Skrypt przed wykonaniem zmian pokaże **host, nazwę bazy i użytkownika DB** oraz wymaga wpisania dokładnej frazy:
+
+```text
+RESET IOD MANAGER
+```
+
+Po potwierdzeniu skrypt:
+
+- usuwa wszystkie widoki i tabele z bazy wskazanej w aktualnym `.env`,
+- nie usuwa samej bazy ani użytkownika DB,
+- usuwa `.env`,
+- usuwa `storage/app/installed.lock`,
+- czyści cache, sesje i skompilowane widoki Laravel,
+- czyści pliki `bootstrap/cache/*.php`,
+- pozostawia `vendor/` i `public/build` bez zmian.
+
+Skrypt działa **wyłącznie z CLI** i nie jest dostępny przez WWW.
+
+Po poprawnym resecie ponownie wejdź na:
+
+```text
+https://twoja-domena.pl/installer.php
+```
+
+i wykonaj instalację od początku.
+
+Jeżeli `.env` nie istnieje, skrypt celowo nie zgaduje danych bazy. W takim przypadku bazę trzeba wyczyścić ręcznie w aaPanel/phpMyAdmin albo przywrócić poprawny `.env` zawierający dane tej bazy i dopiero uruchomić reset.
+
 ## Bezpieczeństwo
 
 - `.env` nigdy nie powinien być dostępny z WWW,
