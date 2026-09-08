@@ -1,1 +1,21 @@
-<x-layouts.app><div class="max-w-3xl"><a href="{{ route('companies.show',$company) }}" class="text-sm text-slate-400">← Firma</a><h1 class="text-3xl font-semibold mt-4 mb-6">Edytuj firmę</h1><form method="POST" action="{{ route('companies.update',$company) }}" class="grid gap-4 md:grid-cols-2">@csrf @method('PUT')@include('companies.partials.form')<div class="md:col-span-2"><button class="rounded-lg bg-slate-100 text-slate-950 px-4 py-2 font-medium">Zapisz zmiany</button></div></form></div></x-layouts.app>
+<x-layouts.app title="Edytuj firmę">
+    <div class="iod-page-head">
+        <div>
+            <div class="iod-eyebrow">Organizacje</div>
+            <h1 class="iod-page-title">Edytuj firmę</h1>
+            <p class="iod-page-subtitle">Zaktualizuj dane organizacji i jej status w panelu IOD.</p>
+        </div>
+        <a href="{{ route('companies.show',$company) }}" class="iod-btn-secondary">← Wróć do firmy</a>
+    </div>
+    <div class="iod-card iod-card-pad" style="max-width:920px">
+        <form method="POST" action="{{ route('companies.update',$company) }}" class="iod-form-grid">
+            @csrf
+            @method('PUT')
+            @include('companies.partials.form')
+            <div class="iod-actions" style="grid-column:1/-1;margin-top:4px">
+                <button class="iod-btn-primary">Zapisz zmiany</button>
+                <a href="{{ route('companies.show',$company) }}" class="iod-btn-ghost">Anuluj</a>
+            </div>
+        </form>
+    </div>
+</x-layouts.app>
