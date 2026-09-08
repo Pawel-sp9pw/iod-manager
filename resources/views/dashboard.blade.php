@@ -1,95 +1,62 @@
 <x-layouts.app title="Dashboard">
-    <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div class="iod-page-head">
         <div>
-            <p class="text-sm font-semibold uppercase tracking-[0.2em] text-indigo-600">Panel IOD</p>
-            <h1 class="mt-2 text-3xl font-bold tracking-tight text-slate-950">Twoje organizacje</h1>
-            <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-500">Wybierz firmę, aby przejść do jej rejestrów, upoważnień, przypomnień i ustawień dostępu.</p>
+            <div class="iod-eyebrow">Panel IOD</div>
+            <h1 class="iod-page-title">Twoje organizacje</h1>
+            <p class="iod-page-subtitle">Wybierz firmę, aby przejść do rejestrów, upoważnień, przypomnień i ustawień dostępu.</p>
         </div>
         @if(auth()->user()->is_super_admin)
             <a href="{{ route('companies.create') }}" class="iod-btn-primary">+ Dodaj firmę</a>
         @endif
     </div>
 
-    <div class="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <div class="iod-card p-5">
-            <div class="text-sm font-medium text-slate-500">Firmy</div>
-            <div class="mt-2 text-3xl font-bold tracking-tight text-slate-950">{{ $companies->count() }}</div>
-            <div class="mt-2 text-xs text-slate-400">Organizacje dostępne na Twoim koncie</div>
-        </div>
-        <div class="iod-card p-5">
-            <div class="text-sm font-medium text-slate-500">Aktywne</div>
-            <div class="mt-2 text-3xl font-bold tracking-tight text-emerald-600">{{ $companies->where('active', true)->count() }}</div>
-            <div class="mt-2 text-xs text-slate-400">Firmy aktualnie objęte obsługą</div>
-        </div>
-        <div class="iod-card p-5">
-            <div class="text-sm font-medium text-slate-500">Bezpieczeństwo</div>
-            <div class="mt-2 text-lg font-bold text-slate-950">2FA</div>
-            <a href="{{ route('security.two-factor') }}" class="mt-2 inline-block text-xs font-semibold text-indigo-600 hover:text-indigo-500">Przejdź do ustawień →</a>
-        </div>
-        <div class="iod-card p-5">
-            <div class="text-sm font-medium text-slate-500">Rola</div>
-            <div class="mt-2 text-lg font-bold text-slate-950">{{ auth()->user()->is_super_admin ? 'Administrator / IOD' : 'Użytkownik' }}</div>
-            <div class="mt-2 text-xs text-slate-400">Uprawnienia bieżącego konta</div>
-        </div>
+    <div class="iod-grid iod-grid-4">
+        <div class="iod-card iod-stat"><div class="iod-stat-label">Firmy</div><div class="iod-stat-value">{{ $companies->count() }}</div><div class="iod-stat-meta">Organizacje dostępne na koncie</div></div>
+        <div class="iod-card iod-stat"><div class="iod-stat-label">Aktywne</div><div class="iod-stat-value" style="color:#047857">{{ $companies->where('active', true)->count() }}</div><div class="iod-stat-meta">Firmy aktualnie objęte obsługą</div></div>
+        <div class="iod-card iod-stat"><div class="iod-stat-label">Bezpieczeństwo</div><div class="iod-stat-value" style="font-size:21px">2FA</div><div class="iod-stat-meta"><a href="{{ route('security.two-factor') }}" style="color:#4f46e5;font-weight:700">Przejdź do ustawień →</a></div></div>
+        <div class="iod-card iod-stat"><div class="iod-stat-label">Rola</div><div class="iod-stat-value" style="font-size:18px">{{ auth()->user()->is_super_admin ? 'Administrator / IOD' : 'Użytkownik' }}</div><div class="iod-stat-meta">Uprawnienia bieżącego konta</div></div>
     </div>
 
-    <div class="grid gap-6 xl:grid-cols-[1fr_320px]">
-        <section class="iod-card overflow-hidden">
-            <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4 sm:px-6">
-                <div>
-                    <h2 class="font-semibold text-slate-950">Lista firm</h2>
-                    <p class="mt-1 text-xs text-slate-500">Kliknij organizację, aby otworzyć jej panel.</p>
-                </div>
+    <div class="iod-grid" style="grid-template-columns:minmax(0,1fr) 320px;margin-top:22px">
+        <section class="iod-card">
+            <div class="iod-card-pad" style="border-bottom:1px solid #e2e8f0;padding-bottom:16px">
+                <div class="iod-card-title">Lista firm</div>
+                <div class="iod-card-subtitle">Kliknij organizację, aby otworzyć jej panel.</div>
             </div>
-
-            <div class="divide-y divide-slate-100">
+            <div class="iod-list">
                 @forelse($companies as $company)
-                    <a href="{{ route('companies.show', $company) }}" class="group flex flex-col gap-4 px-5 py-5 transition hover:bg-slate-50 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-                        <div class="min-w-0">
-                            <div class="flex flex-wrap items-center gap-2">
-                                <h3 class="truncate font-semibold text-slate-950 group-hover:text-indigo-600">{{ $company->short_name ?: $company->name }}</h3>
-                                @if($company->active)
-                                    <span class="iod-badge bg-emerald-100 text-emerald-700">Aktywna</span>
-                                @else
-                                    <span class="iod-badge bg-slate-100 text-slate-600">Nieaktywna</span>
-                                @endif
+                    <a href="{{ route('companies.show', $company) }}" class="iod-list-item">
+                        <div style="min-width:0">
+                            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                                <span class="iod-list-title">{{ $company->short_name ?: $company->name }}</span>
+                                <span class="iod-badge {{ $company->active ? 'iod-badge-success' : 'iod-badge-neutral' }}">{{ $company->active ? 'Aktywna' : 'Nieaktywna' }}</span>
                             </div>
-                            @if($company->short_name)
-                                <div class="mt-1 truncate text-sm text-slate-500">{{ $company->name }}</div>
-                            @endif
-                            <div class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-400">
-                                @if($company->city)<span>{{ $company->city }}</span>@endif
-                                @if($company->nip)<span>NIP {{ $company->nip }}</span>@endif
-                            </div>
+                            @if($company->short_name)<div class="iod-list-meta">{{ $company->name }}</div>@endif
+                            <div class="iod-list-meta">@if($company->city){{ $company->city }}@endif @if($company->nip) · NIP {{ $company->nip }}@endif</div>
                         </div>
-                        <div class="flex shrink-0 items-center gap-2 text-sm font-semibold text-indigo-600">Otwórz panel <span aria-hidden="true">→</span></div>
+                        <span style="color:#4f46e5;font-size:13px;font-weight:800;white-space:nowrap">Otwórz panel →</span>
                     </a>
                 @empty
-                    <div class="px-6 py-12 text-center">
-                        <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">0</div>
-                        <h3 class="mt-4 font-semibold text-slate-900">Brak przypisanych firm</h3>
-                        <p class="mt-2 text-sm text-slate-500">Dodaj pierwszą organizację, aby rozpocząć pracę w IOD Manager.</p>
-                    </div>
+                    <div class="iod-empty"><strong>Brak przypisanych firm</strong>Dodaj pierwszą organizację, aby rozpocząć pracę w IOD Manager.</div>
                 @endforelse
             </div>
         </section>
 
-        <aside class="space-y-6">
-            <div class="iod-card p-5">
-                <h2 class="font-semibold text-slate-950">Szybkie akcje</h2>
-                <div class="mt-4 space-y-3">
-                    @if(auth()->user()->is_super_admin)
-                        <a href="{{ route('companies.create') }}" class="iod-btn-primary w-full">Dodaj organizację</a>
-                    @endif
-                    <a href="{{ route('security.two-factor') }}" class="iod-btn-secondary w-full">Ustawienia 2FA</a>
+        <aside style="display:flex;flex-direction:column;gap:18px">
+            <div class="iod-card iod-card-pad">
+                <div class="iod-card-title">Szybkie akcje</div>
+                <div style="display:flex;flex-direction:column;gap:10px;margin-top:16px">
+                    @if(auth()->user()->is_super_admin)<a href="{{ route('companies.create') }}" class="iod-btn-primary">Dodaj organizację</a>@endif
+                    <a href="{{ route('security.two-factor') }}" class="iod-btn-secondary">Ustawienia 2FA</a>
                 </div>
             </div>
-
-            <div class="rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-700 p-5 text-white shadow-lg shadow-indigo-600/20">
-                <div class="text-sm font-semibold text-indigo-100">Bezpieczeństwo konta</div>
-                <p class="mt-2 text-sm leading-6 text-indigo-100">Dla konta IOD zalecamy aktywne uwierzytelnianie dwuskładnikowe i bezpieczne przechowywanie kodów odzyskiwania.</p>
-                <a href="{{ route('security.two-factor') }}" class="mt-4 inline-flex rounded-xl bg-white/15 px-3 py-2 text-sm font-semibold text-white transition hover:bg-white/20">Sprawdź ustawienia</a>
+            <div class="iod-card iod-card-pad" style="background:linear-gradient(145deg,#4f46e5,#4338ca);border-color:#4f46e5;color:white">
+                <div style="font-size:14px;font-weight:800">Bezpieczeństwo konta</div>
+                <p style="font-size:13px;line-height:1.65;color:#e0e7ff;margin:10px 0 16px">Dla konta IOD zalecamy aktywne uwierzytelnianie dwuskładnikowe i bezpieczne przechowywanie kodów odzyskiwania.</p>
+                <a href="{{ route('security.two-factor') }}" class="iod-btn-secondary" style="background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.2);color:#fff">Sprawdź ustawienia</a>
             </div>
         </aside>
     </div>
+
+    <style>@media(max-width:900px){.iod-main>.iod-grid[style*="320px"]{grid-template-columns:1fr!important}}</style>
 </x-layouts.app>
