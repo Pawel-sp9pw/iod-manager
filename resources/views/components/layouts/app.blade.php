@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title ?? 'IOD Manager' }}</title>
-    <link rel="stylesheet" href="{{ asset('css/iod-manager.css') }}">
+    @include('components.iod-styles')
 </head>
 <body>
 <div class="iod-shell">
