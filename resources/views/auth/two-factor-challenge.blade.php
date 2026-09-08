@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>2FA — IOD Manager</title>
-    <link rel="stylesheet" href="{{ asset('css/iod-manager.css') }}">
+    @include('components.iod-styles')
 </head>
 <body>
 <div class="iod-login">
