@@ -9,7 +9,7 @@ declare(strict_types=1);
  *  - reads current DB credentials from .env,
  *  - shows the target database before doing anything,
  *  - requires an exact confirmation phrase,
- *  - drops all tables/views in the configured database,
+ *  - drops all views/tables in the configured database,
  *  - removes .env and storage/app/installed.lock,
  *  - clears Laravel runtime caches,
  *  - keeps the database itself, DB user, vendor/ and public/build intact.
@@ -142,18 +142,19 @@ try {
 
     $pdo->exec('SET FOREIGN_KEY_CHECKS=0');
 
-    $tables = $pdo->query("SHOW FULL TABLES WHERE Table_type = 'BASE TABLE'")->fetchAll(PDO::FETCH_COLUMN);
-    foreach ($tables as $table) {
-        $quoted = '`' . str_replace('`', '``', (string) $table) . '`';
-        $pdo->exec("DROP TABLE IF EXISTS {$quoted}");
-        fwrite(STDOUT, "Usunięto tabelę: {$table}\n");
-    }
-
+    // Drop views first so no view remains dependent on a table being removed.
     $views = $pdo->query("SHOW FULL TABLES WHERE Table_type = 'VIEW'")->fetchAll(PDO::FETCH_COLUMN);
     foreach ($views as $view) {
         $quoted = '`' . str_replace('`', '``', (string) $view) . '`';
         $pdo->exec("DROP VIEW IF EXISTS {$quoted}");
         fwrite(STDOUT, "Usunięto widok: {$view}\n");
+    }
+
+    $tables = $pdo->query("SHOW FULL TABLES WHERE Table_type = 'BASE TABLE'")->fetchAll(PDO::FETCH_COLUMN);
+    foreach ($tables as $table) {
+        $quoted = '`' . str_replace('`', '``', (string) $table) . '`';
+        $pdo->exec("DROP TABLE IF EXISTS {$quoted}");
+        fwrite(STDOUT, "Usunięto tabelę: {$table}\n");
     }
 
     $pdo->exec('SET FOREIGN_KEY_CHECKS=1');
