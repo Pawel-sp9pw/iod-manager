@@ -1,1 +1,44 @@
-<x-layouts.app><a href="{{ route('registers.index',$company) }}" class="text-sm text-slate-400">← Rejestry</a><h1 class="text-3xl font-semibold mt-3">{{ $register->name }}</h1><p class="text-slate-500 mb-6">{{ $register->description }}</p>@if(auth()->user()->canWriteCompany($company->id))<form method="POST" action="{{ route('register_entries.store',[$company,$register]) }}" class="rounded-xl border border-slate-800 p-5 grid gap-3 md:grid-cols-2 mb-8">@csrf<input name="title" required placeholder="Tytuł wpisu" class="rounded bg-slate-900 border border-slate-700 px-3 py-2"><input name="status" value="active" required placeholder="Status" class="rounded bg-slate-900 border border-slate-700 px-3 py-2"><input type="date" name="event_date" class="rounded bg-slate-900 border border-slate-700 px-3 py-2"><textarea name="notes" placeholder="Notatki" class="rounded bg-slate-900 border border-slate-700 px-3 py-2"></textarea><textarea name="data_json" placeholder='Dodatkowe dane JSON, np. {"podstawa_prawna":"..."}' class="rounded bg-slate-900 border border-slate-700 px-3 py-2 md:col-span-2"></textarea><button class="rounded bg-slate-100 text-slate-950 px-4 py-2 font-medium md:col-span-2">Dodaj wpis</button></form>@endif<div class="rounded-xl border border-slate-800 divide-y divide-slate-800">@forelse($entries as $e)<div class="p-4"><div class="flex justify-between gap-4"><div><div class="font-medium">{{ $e->title }}</div><div class="text-xs text-slate-500">{{ $e->event_date?->format('d.m.Y') }} · {{ $e->status }}</div></div>@if(auth()->user()->canWriteCompany($company->id))<form method="POST" action="{{ route('register_entries.destroy',[$company,$register,$e]) }}">@csrf @method('DELETE')<button class="text-sm text-red-300">Archiwizuj</button></form>@endif</div>@if($e->notes)<p class="mt-2 text-slate-300 whitespace-pre-line">{{ $e->notes }}</p>@endif</div>@empty<div class="p-4 text-slate-400">Brak wpisów.</div>@endforelse</div><div class="mt-4">{{ $entries->links() }}</div></x-layouts.app>
+<x-layouts.app title="{{ $register->name }}">
+    <div class="iod-page-head">
+        <div>
+            <div class="iod-eyebrow">Rejestr RODO</div>
+            <h1 class="iod-page-title">{{ $register->name }}</h1>
+            <p class="iod-page-subtitle">{{ $register->description ?: 'Rejestr wpisów i zdarzeń dla tej organizacji.' }}</p>
+        </div>
+        <a href="{{ route('registers.index',$company) }}" class="iod-btn-secondary">← Wszystkie rejestry</a>
+    </div>
+
+    @if(auth()->user()->canWriteCompany($company->id))
+        <section class="iod-card iod-card-pad">
+            <div class="iod-section-head"><div><h2 class="iod-section-title">Dodaj wpis</h2><div class="iod-card-subtitle">Uzupełnij podstawowe informacje o nowym zdarzeniu.</div></div></div>
+            <form method="POST" action="{{ route('register_entries.store',[$company,$register]) }}" class="iod-form-grid">
+                @csrf
+                <div class="iod-field"><label class="iod-label">Tytuł wpisu</label><input name="title" required class="iod-input"></div>
+                <div class="iod-field"><label class="iod-label">Status</label><input name="status" value="active" required class="iod-input"></div>
+                <div class="iod-field"><label class="iod-label">Data zdarzenia</label><input type="date" name="event_date" class="iod-input"></div>
+                <div class="iod-field"><label class="iod-label">Notatki</label><textarea name="notes" class="iod-textarea"></textarea></div>
+                <div class="iod-field" style="grid-column:1/-1"><label class="iod-label">Dodatkowe dane JSON</label><textarea name="data_json" class="iod-textarea" placeholder='np. {"podstawa_prawna":"..."}'></textarea><div class="iod-help">Pole techniczne dla danych dodatkowych; pozostaw puste, jeśli nie jest potrzebne.</div></div>
+                <div class="iod-actions" style="grid-column:1/-1"><button class="iod-btn-primary">Dodaj wpis</button></div>
+            </form>
+        </section>
+    @endif
+
+    <section class="iod-section">
+        <div class="iod-section-head"><h2 class="iod-section-title">Wpisy</h2></div>
+        <div class="iod-card iod-list">
+            @forelse($entries as $e)
+                <div class="iod-list-item" style="align-items:flex-start">
+                    <div style="min-width:0;flex:1">
+                        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><div class="iod-list-title">{{ $e->title }}</div><span class="iod-badge iod-badge-neutral">{{ $e->status }}</span></div>
+                        <div class="iod-list-meta">{{ $e->event_date?->format('d.m.Y') ?: 'bez daty' }}</div>
+                        @if($e->notes)<p style="margin:10px 0 0;color:#475569;line-height:1.6;white-space:pre-line">{{ $e->notes }}</p>@endif
+                    </div>
+                    @if(auth()->user()->canWriteCompany($company->id))<form method="POST" action="{{ route('register_entries.destroy',[$company,$register,$e]) }}">@csrf @method('DELETE')<button class="iod-btn-danger">Archiwizuj</button></form>@endif
+                </div>
+            @empty
+                <div class="iod-empty"><strong>Brak wpisów</strong>Ten rejestr nie zawiera jeszcze żadnych pozycji.</div>
+            @endforelse
+        </div>
+        <div style="margin-top:16px">{{ $entries->links() }}</div>
+    </section>
+</x-layouts.app>
