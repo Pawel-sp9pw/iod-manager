@@ -41,12 +41,15 @@
                         <p style="margin:10px 0 0;color:#475569;line-height:1.6;white-space:pre-line">{{ $a->scope }}</p>
                         @if($a->revocation_reason)<div class="iod-alert iod-alert-error" style="margin:12px 0 0">Powód odwołania: {{ $a->revocation_reason }}</div>@endif
                     </div>
-                    @if(!$a->revoked_at && auth()->user()->canWriteCompany($company->id))
-                        <form method="POST" action="{{ route('authorizations.revoke',[$company,$a]) }}" style="min-width:230px">@csrf
-                            <input name="revocation_reason" required placeholder="Powód odwołania" class="iod-input" style="padding:9px 10px;font-size:13px">
-                            <button class="iod-btn-danger" style="margin-top:8px;width:100%">Odwołaj upoważnienie</button>
-                        </form>
-                    @endif
+                    <div style="min-width:230px;display:flex;flex-direction:column;gap:8px">
+                        <a href="{{ route('authorizations.pdf',[$company,$a]) }}" class="iod-btn-secondary" style="width:100%">Pobierz PDF</a>
+                        @if(!$a->revoked_at && auth()->user()->canWriteCompany($company->id))
+                            <form method="POST" action="{{ route('authorizations.revoke',[$company,$a]) }}">@csrf
+                                <input name="revocation_reason" required placeholder="Powód odwołania" class="iod-input" style="padding:9px 10px;font-size:13px">
+                                <button class="iod-btn-danger" style="margin-top:8px;width:100%">Odwołaj upoważnienie</button>
+                            </form>
+                        @endif
+                    </div>
                 </div>
             @empty
                 <div class="iod-empty"><strong>Brak upoważnień</strong>Nie zarejestrowano jeszcze żadnych upoważnień.</div>
