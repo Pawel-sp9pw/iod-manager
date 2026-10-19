@@ -65,4 +65,17 @@ class User extends Authenticatable
             })
             ->exists();
     }
+
+    public function canManageCompanyUsers(int $companyId): bool
+    {
+        if ($this->is_super_admin) {
+            return true;
+        }
+
+        return $this->companies()
+            ->whereKey($companyId)
+            ->where('company_user.role', 'company_admin')
+            ->where('company_user.can_write', true)
+            ->exists();
+    }
 }
