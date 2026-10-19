@@ -9,6 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Validation\ValidationException;
 
 class CompanyUserController extends Controller
 {
@@ -25,10 +26,31 @@ class CompanyUserController extends Controller
 
         $email = mb_strtolower($data['email']);
 
-        $user = User::firstOrCreate(
-            ['email' => $email],
-            ['name' => $data['name'], 'password' => Hash::make($data['password'])]
-        );
+        $user = User::where('email', $email)->first();
+
+        if ($user) {
+            if ($user->is_super_admin) {
+                throw ValidationException::withMessages([
+                    'email' => 'Tego adresu używa konto administratora globalnego i nie można go przypisać jako konta firmowego.',
+                ]);
+            }
+
+            $hasOtherCompany = $user->companies()
+                ->where('companies.id', '!=', $company->id)
+                ->exists();
+
+            if ($hasOtherCompany) {
+                throw ValidationException::withMessages([
+                    'email' => 'Ten użytkownik jest już przypisany do innej firmy. Konto firmowe może być przypisane tylko do jednej organizacji.',
+                ]);
+            }
+        } else {
+            $user = User::create([
+                'name' => $data['name'],
+                'email' => $email,
+                'password' => Hash::make($data['password']),
+            ]);
+        }
 
         $company->users()->syncWithoutDetaching([
             $user->id => [
