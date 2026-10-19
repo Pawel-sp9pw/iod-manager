@@ -5,9 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Authorization;
 use App\Models\Company;
 use App\Services\AuditLogger;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\Response;
 
 class AuthorizationController extends Controller
 {
@@ -30,6 +33,22 @@ class AuthorizationController extends Controller
         $authorization = $company->authorizations()->create($data + ['issued_by' => $request->user()->id]);
         AuditLogger::record('authorization.issued', $authorization, [], $authorization->toArray(), $company->id);
         return back()->with('status', 'Upoważnienie zostało wydane.');
+    }
+
+    public function pdf(Company $company, Authorization $authorization): Response
+    {
+        abort_unless($authorization->company_id === $company->id, 404);
+
+        $pdf = Pdf::loadView('authorizations.pdf', [
+            'company' => $company,
+            'authorization' => $authorization,
+        ])->setPaper('a4', 'portrait')
+          ->setOption('defaultFont', 'DejaVu Sans');
+
+        $number = $authorization->authorization_number ?: (string) $authorization->id;
+        $filename = 'upowaznienie-' . Str::slug($number) . '-' . Str::slug($authorization->person_name) . '.pdf';
+
+        return $pdf->download($filename);
     }
 
     public function revoke(Request $request, Company $company, Authorization $authorization): RedirectResponse
