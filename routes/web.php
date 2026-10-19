@@ -39,6 +39,7 @@ Route::middleware('auth')->group(function () {
         })->middleware('company.access:read')->name('companies.show');
 
         Route::post('/companies/{company}/users', [CompanyUserController::class, 'store'])->name('companies.users.store');
+        Route::put('/companies/{company}/users/{user}', [CompanyUserController::class, 'update'])->name('companies.users.update');
         Route::delete('/companies/{company}/users/{user}', [CompanyUserController::class, 'destroy'])->name('companies.users.destroy');
 
         Route::get('/companies/{company}/registers', [RegisterController::class, 'index'])->middleware('company.access:read')->name('registers.index');
