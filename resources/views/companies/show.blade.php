@@ -28,28 +28,84 @@
         </div>
     </section>
 
-    @if(auth()->user()->is_super_admin)
+    @if(auth()->user()->canManageCompanyUsers($company->id))
         <section class="iod-section iod-card iod-card-pad">
-            <div class="iod-section-head"><div><h2 class="iod-section-title">Konta przypisane do firmy</h2><div class="iod-card-subtitle">Zarządzaj dostępem użytkowników do tej organizacji.</div></div></div>
+            <div class="iod-section-head">
+                <div>
+                    <h2 class="iod-section-title">Użytkownicy firmy</h2>
+                    <div class="iod-card-subtitle">Konta mają dostęp wyłącznie do tej organizacji. Administrator firmy może edytować dane i zarządzać użytkownikami, a konto tylko do odczytu nie może niczego zmieniać.</div>
+                </div>
+            </div>
+
             <div class="iod-list" style="margin:0 -22px 22px">
                 @forelse($companyUsers as $u)
-                    <div class="iod-list-item">
-                        <div><div class="iod-list-title">{{ $u->name }}</div><div class="iod-list-meta">{{ $u->email }} · {{ $u->pivot->role }}{{ $u->pivot->can_write?' · zapis':'' }}</div></div>
-                        @if($u->id!==auth()->id())<form method="POST" action="{{ route('companies.users.destroy',[$company,$u]) }}">@csrf @method('DELETE')<button class="iod-btn-danger">Usuń dostęp</button></form>@endif
+                    @php($accessLevel = ($u->pivot->role === 'iod' || $u->pivot->can_write) ? 'admin' : 'read_only')
+                    <div class="iod-list-item" style="align-items:flex-start">
+                        <div style="min-width:0;flex:1">
+                            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                                <div class="iod-list-title">{{ $u->name }}</div>
+                                @if($accessLevel === 'admin')
+                                    <span class="iod-badge iod-badge-success">Administrator firmy</span>
+                                @else
+                                    <span class="iod-badge iod-badge-neutral">Tylko odczyt</span>
+                                @endif
+                            </div>
+                            <div class="iod-list-meta">{{ $u->email }}</div>
+                            <div class="iod-list-meta">
+                                {{ $accessLevel === 'admin'
+                                    ? 'Może dodawać i edytować dane w tej firmie oraz zarządzać jej użytkownikami.'
+                                    : 'Może przeglądać dane tej firmy bez możliwości zapisu.' }}
+                            </div>
+                        </div>
+
+                        <div style="min-width:250px;display:flex;flex-direction:column;gap:8px">
+                            @if($u->id !== auth()->id() || auth()->user()->is_super_admin)
+                                <form method="POST" action="{{ route('companies.users.update',[$company,$u]) }}">
+                                    @csrf
+                                    @method('PUT')
+                                    <select name="access_level" class="iod-select">
+                                        <option value="admin" @selected($accessLevel === 'admin')>Administrator firmy</option>
+                                        <option value="read_only" @selected($accessLevel === 'read_only')>Tylko odczyt</option>
+                                    </select>
+                                    <button class="iod-btn-secondary" style="width:100%;margin-top:8px">Zmień uprawnienia</button>
+                                </form>
+                            @endif
+
+                            @if($u->id !== auth()->id())
+                                <form method="POST" action="{{ route('companies.users.destroy',[$company,$u]) }}">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button class="iod-btn-danger" style="width:100%">Usuń dostęp</button>
+                                </form>
+                            @endif
+                        </div>
                     </div>
                 @empty
                     <div class="iod-empty">Brak dodatkowych kont przypisanych do firmy.</div>
                 @endforelse
             </div>
+
+            <div class="iod-section-head">
+                <div>
+                    <h3 class="iod-section-title">Dodaj użytkownika</h3>
+                    <div class="iod-card-subtitle">Nowe konto zostanie przypisane wyłącznie do {{ $company->short_name ?: $company->name }}.</div>
+                </div>
+            </div>
+
             <form method="POST" action="{{ route('companies.users.store',$company) }}" class="iod-form-grid">
                 @csrf
                 <div class="iod-field"><label class="iod-label">Imię i nazwisko</label><input name="name" required class="iod-input"></div>
                 <div class="iod-field"><label class="iod-label">E-mail</label><input type="email" name="email" required class="iod-input"></div>
                 <div class="iod-field"><label class="iod-label">Hasło</label><input type="password" name="password" required class="iod-input" placeholder="Minimum 14 znaków"></div>
                 <div class="iod-field"><label class="iod-label">Powtórz hasło</label><input type="password" name="password_confirmation" required class="iod-input"></div>
-                <div class="iod-field"><label class="iod-label">Rola</label><select name="role" class="iod-select"><option value="company_admin">Administrator — podgląd</option><option value="iod">IOD — pełny dostęp</option></select></div>
-                <label style="display:flex;align-items:center;gap:9px;font-size:14px;color:#475569"><input type="checkbox" name="can_write" value="1" style="width:16px;height:16px"> Zezwól na zapis</label>
-                <div class="iod-actions" style="grid-column:1/-1"><button class="iod-btn-primary">Dodaj / przypisz konto</button></div>
+                <div class="iod-field" style="grid-column:1/-1">
+                    <label class="iod-label">Poziom dostępu</label>
+                    <select name="access_level" class="iod-select" required>
+                        <option value="read_only">Tylko odczyt — bez możliwości zmiany danych</option>
+                        <option value="admin">Administrator firmy — zapis i zarządzanie użytkownikami tej firmy</option>
+                    </select>
+                </div>
+                <div class="iod-actions" style="grid-column:1/-1"><button class="iod-btn-primary">Utwórz i przypisz konto</button></div>
             </form>
         </section>
     @endif
