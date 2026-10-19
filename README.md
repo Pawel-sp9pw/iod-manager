@@ -18,6 +18,7 @@ Docker nie jest wymagany ani używany w docelowym wdrożeniu.
 - wiele firm z izolacją danych,
 - globalne konto IOD,
 - konta ograniczone do konkretnej firmy,
+- konta firmowe z poziomem Administrator firmy lub Tylko odczyt,
 - role `iod` i `company_admin`,
 - osobne prawo zapisu `can_write`,
 - rejestry RODO i wpisy,
@@ -241,3 +242,13 @@ Generator używa `barryvdh/laravel-dompdf` / Dompdf i nie wymaga Node.js, Chromi
 composer update barryvdh/laravel-dompdf --with-dependencies --no-dev --optimize-autoloader
 php artisan optimize:clear
 ```
+
+
+## Konta użytkowników ograniczone do firmy
+
+Dla każdej organizacji można utworzyć konto przypisane wyłącznie do tej firmy. Dostęp ma dwa poziomy:
+
+- **Administrator firmy** — może odczytywać i modyfikować dane firmy oraz zarządzać użytkownikami przypisanymi do tej organizacji.
+- **Tylko odczyt** — może przeglądać dane firmy, ale nie może dodawać, edytować ani usuwać danych.
+
+Konto firmowe może być przypisane tylko do jednej organizacji. Administrator globalny zachowuje dostęp do całej instalacji.
