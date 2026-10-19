@@ -49,6 +49,7 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/companies/{company}/authorizations', [AuthorizationController::class, 'index'])->middleware('company.access:read')->name('authorizations.index');
         Route::post('/companies/{company}/authorizations', [AuthorizationController::class, 'store'])->middleware('company.access:write')->name('authorizations.store');
+        Route::get('/companies/{company}/authorizations/{authorization}/pdf', [AuthorizationController::class, 'pdf'])->middleware('company.access:read')->name('authorizations.pdf');
         Route::post('/companies/{company}/authorizations/{authorization}/revoke', [AuthorizationController::class, 'revoke'])->middleware('company.access:write')->name('authorizations.revoke');
 
         Route::get('/companies/{company}/reminders', [ReminderController::class, 'index'])->middleware('company.access:read')->name('reminders.index');
