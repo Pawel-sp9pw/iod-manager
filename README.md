@@ -22,6 +22,7 @@ Docker nie jest wymagany ani używany w docelowym wdrożeniu.
 - osobne prawo zapisu `can_write`,
 - rejestry RODO i wpisy,
 - wydawanie i odwoływanie upoważnień z historią,
+- generowanie gotowych PDF upoważnień do przetwarzania danych osobowych,
 - przypomnienia jednorazowe i cykliczne,
 - historia wykonania przypomnień,
 - audit log,
@@ -228,3 +229,15 @@ Każdy rekord operacyjny jest związany z firmą (`company_id`). Użytkownik bez
 ## Po pierwszym uruchomieniu
 
 Zaloguj się kontem utworzonym w instalatorze i skonfiguruj TOTP 2FA wraz z recovery codes. Następnie dodaj firmy, którymi zarządzasz, oraz ewentualne konta administratorów firm.
+
+
+## PDF upoważnień
+
+Na ekranie `Upoważnienia` przy każdym wpisie dostępny jest przycisk **Pobierz PDF**. Dokument jest generowany na żądanie po stronie PHP i zawiera dane organizacji, osoby upoważnionej, zakres, daty obowiązywania, klauzulę poufności oraz miejsca na podpisy.
+
+Generator używa `barryvdh/laravel-dompdf` / Dompdf i nie wymaga Node.js, Chromium ani Dockera. Po aktualizacji repozytorium zawierającej tę funkcję należy zaktualizować zależności PHP:
+
+```bash
+composer update barryvdh/laravel-dompdf --with-dependencies --no-dev --optimize-autoloader
+php artisan optimize:clear
+```
